@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi Voz · comunicación con pictogramas</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8f2ff;--card:#fff;--ink:#1f2350;--acc:#5b4bff;--mut:#58608a;--line:#c9d6ef;--tam:130px}
+body.hc{--bg:#000;--card:#000;--ink:#fff;--acc:#ffe600;--mut:#ddd;--line:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible",Verdana,sans-serif;font-size:18px;min-height:100vh}
+h1,h2,.hd{font-family:"Baloo 2","Trebuchet MS",sans-serif}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:4px solid var(--acc);outline-offset:3px}
+.btn{font-weight:700;padding:12px 20px;border-radius:14px;border:3px solid var(--line);background:var(--card)}
+.btn.main{background:var(--acc);border-color:var(--acc);color:#fff}
+body.hc .btn.main{color:#000}
+/* inicio */
+#inicio{min-height:100vh;padding:28px 18px 40px;text-align:center;background:radial-gradient(circle at 12% 8%,#ffd43b55 0 160px,transparent 161px),radial-gradient(circle at 90% 20%,#ff6b9d44 0 200px,transparent 201px),radial-gradient(circle at 80% 95%,#51cf6644 0 220px,transparent 221px)}
+body.hc #inicio{background:none}
+.logo{font-size:clamp(4rem,16vw,8rem);font-weight:800;line-height:1;margin:10px 0 0}
+.logo span{display:inline-block;animation:ola 1.2s ease-out both;animation-delay:calc(var(--i)*.12s)}
+.sub{font-size:1.3rem;color:var(--mut);margin:6px 0 22px}
+.demo{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
+.demo .card{width:110px}
+.titulo{font-size:1.6rem;margin:10px 0 12px}
+.perfiles{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.perfil{width:130px;padding:14px 8px;border-radius:24px;border:4px solid var(--c);background:var(--card);display:flex;flex-direction:column;align-items:center;gap:6px}
+.perfil .av{width:84px;height:84px;border-radius:50%;background:var(--c);display:grid;place-items:center;font-size:3rem}
+.perfil b{font-size:1.1rem;overflow-wrap:anywhere}
+.perfil.nuevo{border-style:dashed;border-color:var(--line);justify-content:center;font-weight:700}
+.fila{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+/* app */
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;max-width:1000px;margin:0 auto}
+.yo{display:flex;align-items:center;gap:10px;border:0;background:none;padding:0}
+.yo .av{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:1.7rem}
+.yo b{font-family:"Baloo 2",sans-serif;font-size:1.3rem}
+.ico{width:48px;height:48px;padding:0;font-size:1.4rem}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 14px 8px;max-width:1000px;margin:0 auto}
+#frase{min-height:112px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:10px;background:var(--card);border:4px solid var(--acc);border-radius:20px}
+#frase .vacio{color:var(--mut);padding:0 8px}
+.chip{position:relative;width:88px;display:flex;flex-direction:column;align-items:center;padding:5px;border-radius:14px;border:3px solid var(--c);background:var(--card);touch-action:none;user-select:none;cursor:grab}
+.chip.arr{opacity:.5;transform:scale(1.1)}
+.chip .pic{width:60px;font-size:2.3rem}
+.chip .t{font-size:.85rem;font-weight:700;text-align:center}
+.chip .x{position:absolute;top:-11px;right:-11px;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--card);padding:0;font-size:14px}
+.acc{display:flex;gap:8px;margin-top:8px}
+.acc .main{flex:1;font-size:1.2rem}
+.cats{display:flex;gap:8px;overflow-x:auto;padding:6px 14px 10px;max-width:1000px;margin:0 auto}
+.cat{white-space:nowrap;padding:8px 16px;border-radius:999px;border:4px solid var(--c);background:var(--card);font-weight:700}
+.cat[aria-pressed="true"]{background:var(--c);color:#111}
+main{max-width:1000px;margin:0 auto;padding:4px 14px 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--tam),1fr));gap:12px}
+.card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 4px;border-radius:20px;border:5px solid var(--c);background:var(--card);box-shadow:0 5px 0 var(--c);min-height:var(--tam)}
+.card:active{transform:translateY(4px);box-shadow:0 1px 0 var(--c)}
+.pic{width:62%;aspect-ratio:1;display:grid;place-items:center;font-size:calc(var(--tam)*.42);line-height:1}
+.pic img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.t{font-weight:700;font-size:1.05rem;overflow-wrap:anywhere;text-align:center}
+.pie{max-width:1000px;margin:0 auto;padding:0 14px 30px;font-size:.85rem;color:var(--mut)}
+.pie a{color:var(--acc)}
+/* movimiento */
+.m-s .pic{animation:salta 1.8s ease-in-out infinite}
+.m-c .pic{animation:desliza 2s ease-in-out infinite}
+.m-g .pic{animation:gira 3.5s linear infinite}
+.m-t .pic{animation:tiembla 1.2s ease-in-out infinite}
+.m-b .pic{animation:mece 2.4s ease-in-out infinite}
+.pop .pic,.pop.chip .pic{animation:pop .55s ease-out!important}
+@keyframes ola{0%{transform:translateY(60px) scale(.3);opacity:0}60%{transform:translateY(-14px) scale(1.1);opacity:1}100%{transform:none}}
+@keyframes salta{0%,100%{transform:none}40%{transform:translateY(-9px)}}
+@keyframes desliza{0%,100%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
+@keyframes gira{to{transform:rotate(360deg)}}
+@keyframes tiembla{0%,100%{transform:none}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+@keyframes mece{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.3) rotate(-6deg)}70%{transform:scale(.92) rotate(5deg)}100%{transform:scale(1)}}
+body.quieto *{animation:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+/* nuevas secciones */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:900px;margin:0 auto 22px}
+.tile{padding:18px 12px;border-radius:26px;border:5px solid var(--c);background:var(--card);box-shadow:0 6px 0 var(--c);display:flex;flex-direction:column;align-items:center;gap:4px;font-family:"Baloo 2",sans-serif;font-size:1.35rem;font-weight:800;line-height:1.1}
+.tile .e{font-size:3.2rem}
+.tile small{font-family:"Atkinson Hyperlegible",sans-serif;font-weight:400;font-size:.95rem;color:var(--mut)}
+.tile:active{transform:translateY(4px);box-shadow:0 2px 0 var(--c)}
+.perfil.sel{outline:6px solid var(--ink);outline-offset:2px}
+.frases{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.fr{display:flex;flex-direction:column;gap:6px;align-items:center;padding:10px;border-radius:20px;border:5px solid var(--c);background:var(--card);box-shadow:0 5px 0 var(--c)}
+.fr .ps{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.fr .ps .pic{width:58px;font-size:2rem}
+.fr .t{font-size:1.15rem}
+.mapaw,.eq{max-width:780px;margin:0 auto;padding:0 14px 30px}
+#mapaSvg{width:100%;height:auto;background:var(--card);border:4px solid var(--line);border-radius:20px;display:block}
+.sala{cursor:pointer}.sala rect{stroke:#222;stroke-width:3}
+.sala:hover rect,.sala:focus-visible rect{stroke-width:7}
+.sala text{pointer-events:none;font-family:"Baloo 2",sans-serif;font-weight:800;fill:#111}
+#lugarBox{text-align:center}
+.foto{width:100%;aspect-ratio:4/3;border-radius:16px;object-fit:cover;display:grid;place-items:center;font-size:7rem}
+.bl{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:14px;margin-bottom:14px}
+.bl h3{font-family:"Baloo 2",sans-serif;margin:0 0 6px;font-size:1.3rem}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.item input{width:auto;max-width:52%}
+select,input[type=password],input[type=file]{width:100%;font:inherit;padding:10px;border-radius:12px;border:3px solid var(--line);background:var(--card);color:var(--ink);margin:4px 0 8px}
+input[type=color]{width:64px;height:44px;padding:2px;border:3px solid var(--line);border-radius:10px;background:var(--card)}
+/* diálogos */
+dialog{border:4px solid var(--acc);border-radius:24px;background:var(--bg);color:var(--ink);max-width:560px;width:calc(100% - 28px);padding:20px;font-size:1.05rem}
+dialog::backdrop{background:#0008}
+dialog h2{margin:0 0 10px;font-size:1.7rem}
+.pasos{list-style:none;padding:0;margin:0 0 14px;display:grid;gap:8px}
+.pasos li{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:14px;padding:8px 12px;border:2px solid var(--line)}
+.pasos .e{font-size:2rem}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+.opt{width:52px;height:52px;border-radius:50%;border:4px solid transparent;background:var(--card);font-size:1.7rem;padding:0}
+.opt[aria-pressed="true"]{border-color:var(--ink)}
+.opt.c{border:4px solid var(--card)}
+.opt.c[aria-pressed="true"]{border-color:var(--ink)}
+input[type=text]{width:100%;font:inherit;padding:12px;border-radius:12px;border:3px solid var(--line);background:var(--card);color:var(--ink);margin:6px 0 10px}
+label{display:block;margin:10px 0 4px;font-weight:700}
+input[type=range]{width:100%}
+.chk{display:flex;gap:10px;align-items:center;font-weight:400}
+.chk input{width:26px;height:26px}
+</style>
+</head>
+<body>
+
+<section id="inicio">
+  <h1 class="logo" id="logo" aria-label="Mi Voz"></h1>
+  <p class="sub">Toca, arma tu frase y habla con pictogramas</p>
+  <div class="demo" id="demo"></div>
+  <h2 class="titulo">¿Quién va a hablar hoy?</h2>
+  <div class="perfiles" id="perfiles"></div>
+  <h2 class="titulo">¿Qué quieres hacer?</h2>
+  <div class="tiles">
+    <button class="tile" style="--c:#3fbf6f" data-go="app"><span class="e">🗣️</span>Ir a los pictogramas<small>Armo mis frases y hablo</small></button>
+    <button class="tile" style="--c:#3b9cff" data-go="mapa"><span class="e">🗺️</span>Mapa escolar<small>¿A dónde quiero ir?</small></button>
+    <button class="tile" style="--c:#c46bd6" data-go="equipo"><span class="e">🧩</span>Construyamos nuestro sistema<small>Para el equipo educativo</small></button>
+  </div>
+  <div class="fila"><button class="btn" id="verManual">❓ ¿Cómo se usa?</button></div>
+</section>
+
+<section id="app" hidden>
+  <div class="top">
+    <button class="yo" id="yo" aria-label="Cambiar de perfil"><span class="av" id="yoAv"></span><b id="yoN"></b></button>
+    <div class="fila"><button class="btn ico" data-go="mapa" aria-label="Mapa escolar">🗺️</button><button class="btn ico" id="ayuda" aria-label="Manual de uso">❓</button><button class="btn ico" id="ajustes" aria-label="Ajustes">⚙️</button></div>
+  </div>
+  <div class="bar">
+    <div id="frase" aria-live="polite"></div>
+    <div class="acc">
+      <button class="btn main" id="play">▶ Decir frase</button>
+      <button class="btn ico" id="borrar" aria-label="Borrar la última palabra">⌫</button>
+      <button class="btn" id="limpiar">Limpiar</button>
+    </div>
+  </div>
+  <nav class="cats" id="cats" aria-label="Categorías"></nav>
+  <main><div class="grid" id="grid"></div></main>
+  <p class="pie">Pictogramas: <a href="https://arasaac.org" target="_blank" rel="noopener">ARASAAC</a> (Gobierno de Aragón), autor Sergio Palao. Licencia CC BY-NC-SA. Uso no comercial.</p>
+</section>
+
+<section id="mapa" hidden>
+  <div class="top"><button class="btn" data-go="inicio">🏠 Inicio</button><button class="btn" data-go="app">🗣️ Pictogramas</button></div>
+  <h2 style="text-align:center;margin:4px 0 10px;font-size:2rem">¿A dónde quiero ir?</h2>
+  <div class="mapaw"><svg id="mapaSvg" viewBox="0 0 400 300" role="group" aria-label="Mapa del colegio"></svg>
+  <p class="pie" style="padding:8px 0">Colegio de ejemplo (ficticio). Toca un lugar para verlo y escucharlo.</p></div>
+</section>
+
+<section id="equipo" hidden>
+  <div class="top"><button class="btn" data-go="inicio">🏠 Inicio</button></div>
+  <div class="eq">
+    <h2 style="font-size:2rem;margin:0 0 6px">Construyamos nuestro sistema</h2>
+    <p class="pie" style="padding:0 0 12px">Equipo educativo: agreguen palabras, fotos y frases según las necesidades de cada estudiante. Todo se guarda solo en este dispositivo. Suban fotos de personas únicamente con autorización de la familia.</p>
+    <div class="bl"><h3>1. Nueva categoría</h3>
+      <label for="eqCn">Nombre (ej: Mi familia, Taller de cocina)</label><input type="text" id="eqCn" maxlength="24">
+      <label for="eqCe">Emoji</label><input type="text" id="eqCe" maxlength="4" value="⭐">
+      <label for="eqCc">Color</label><input type="color" id="eqCc" value="#ff8a3d">
+      <div><button class="btn main" id="eqCb">Crear categoría</button></div></div>
+    <div class="bl"><h3>2. Nueva palabra o persona</h3>
+      <label for="eqPt">Palabra (si repites una existente, tu foto la reemplaza)</label><input type="text" id="eqPt" maxlength="24">
+      <label for="eqPc">Categoría</label><select id="eqPc"></select>
+      <label for="eqPf">Foto propia (opcional)</label><input type="file" id="eqPf" accept="image/*">
+      <label for="eqPe">Emoji de respaldo</label><input type="text" id="eqPe" maxlength="4" value="🖼️">
+      <div><button class="btn main" id="eqPb">Agregar palabra</button></div></div>
+    <div class="bl"><h3>3. Nueva frase rápida (aparece en “Quiero decir”)</h3>
+      <label for="eqFt">Frase</label><input type="text" id="eqFt" maxlength="60">
+      <div><button class="btn main" id="eqFb">Agregar frase</button></div></div>
+    <div class="bl"><h3>4. Fotos reales del colegio (mapa)</h3><div id="eqMapa"></div></div>
+    <div class="bl"><h3>Lo que hemos creado</h3><div id="eqLista"></div></div>
+    <div class="bl"><h3>Copia de seguridad</h3>
+      <div class="fila" style="justify-content:flex-start"><button class="btn" id="eqExp">⬇️ Guardar copia</button></div>
+      <label for="eqImp">Cargar una copia</label><input type="file" id="eqImp" accept=".json,application/json"></div>
+  </div>
+</section>
+
+<dialog id="lugar"><div id="lugarBox"></div></dialog>
+<dialog id="pin"><h2 id="pinT"></h2>
+  <p class="pie" style="padding:0 0 8px">La clave evita abrir este modo sin querer. No reemplaza la protección de datos.</p>
+  <input type="password" id="pinI" inputmode="numeric" maxlength="4" aria-label="Clave de 4 números" autocomplete="off">
+  <div class="fila" style="justify-content:flex-start"><button class="btn main" id="pinOk">Entrar</button><button class="btn" onclick="this.closest('dialog').close()">Cancelar</button></div></dialog>
+
+<dialog id="manual">
+  <h2>¿Cómo se usa?</h2>
+  <ol class="pasos">
+    <li><span class="e">🦊</span>Elige tu perfil, o crea uno con tu nombre y tu avatar.</li>
+    <li><span class="e">👆</span>Toca una imagen: la escuchas y se mueve.</li>
+    <li><span class="e">🧩</span>La imagen se agrega a tu frase, arriba.</li>
+    <li><span class="e">↔️</span>Arrastra las imágenes de la frase para cambiar el orden.</li>
+    <li><span class="e">▶️</span>Toca “Decir frase” para escuchar todo junto.</li>
+    <li><span class="e">✕</span>Quita una imagen con la X, o usa ⌫ y Limpiar.</li>
+    <li><span class="e">⭐</span>En “Quiero decir” hay frases listas: tócalas y se dicen solas.</li>
+    <li><span class="e">🗺️</span>En el mapa eliges a dónde quieres ir.</li>
+    <li><span class="e">⚙️</span>En ajustes cambias el tamaño, la velocidad, el contraste y el movimiento.</li>
+  </ol>
+  <p style="color:var(--mut);font-size:.95rem">Para docentes y familias: la voz y los pictogramas necesitan internet. Se recomienda Microsoft Edge o Chrome. Los perfiles se guardan solo en este dispositivo.</p>
+  <button class="btn main" onclick="this.closest('dialog').close()">Entendido</button>
+</dialog>
+
+<dialog id="crear">
+  <h2>Nuevo perfil</h2>
+  <label for="nom">Nombre</label>
+  <input type="text" id="nom" maxlength="14" autocomplete="off">
+  <label id="lav">Elige tu avatar</label>
+  <div class="opts" id="avs" aria-labelledby="lav"></div>
+  <label id="lco">Elige tu color</label>
+  <div class="opts" id="cols" aria-labelledby="lco"></div>
+  <div class="fila" style="justify-content:flex-start">
+    <button class="btn main" id="guardar">Guardar</button>
+    <button class="btn" onclick="this.closest('dialog').close()">Cancelar</button>
+  </div>
+</dialog>
+
+<dialog id="aju">
+  <h2>Ajustes</h2>
+  <label for="rTam">Tamaño de las imágenes</label>
+  <input type="range" id="rTam" min="100" max="220" step="10">
+  <label for="rVel">Velocidad de la voz</label>
+  <input type="range" id="rVel" min="0.5" max="1.2" step="0.05">
+  <label class="chk"><input type="checkbox" id="cHc"> Alto contraste</label>
+  <label class="chk"><input type="checkbox" id="cQu"> Sin movimiento</label>
+  <div class="fila" style="justify-content:flex-start;margin-top:16px">
+    <button class="btn main" onclick="this.closest('dialog').close()">Listo</button>
+    <button class="btn" id="borraPerfil">Borrar perfil</button>
+  </div>
+</dialog>
+
+<script>
+const $=id=>document.getElementById(id);
+const ls=(k,v)=>{try{return v===undefined?localStorage.getItem('mivoz_'+k):localStorage.setItem('mivoz_'+k,v)}catch(e){return null}};
+
+/* ---------- Vocabulario: texto,emoji,movimiento,búsqueda ARASAAC ---------- */
+const CATS=[
+['quiero','Quiero decir','#ff5d8f','⭐'],['personas','Personas','#f5c518','🙋'],['acciones','Acciones','#3fbf6f','🏃'],['conectores','Conectores','#7a8cff','🔗'],['emociones','Emociones','#ff7eb6','😊'],
+['necesidades','Necesito','#ff8a3d','🤲'],['colegio','Colegio','#3b9cff','🏫'],['materiales','Materiales','#9b6bff','🖍️'],
+['materias','Asignaturas','#00b8b0','📚'],['preguntas','Preguntas','#e5484d','❓'],['social','Social','#c46bd6','💬'],['docentes','Instrucciones','#2f9e8f','👩‍🏫'],['colores','Colores','#8d99ae','🎨']];
+const W={
+personas:'yo,🙋;tú,👉;nosotros,👥;profe,👩‍🏫,,profesora;compañero,🧒,,compañero;amigo,🧑‍🤝‍🧑;mamá,👩;papá,👨;él,👦;ella,👧',
+acciones:'quiero,🤲;necesito,🙏;ir,🚶,c;participar,🙋‍♂️,s;leer,📖,b;escribir,✍️,b;dibujar,✏️,b;pintar,🖌️,b;cortar,✂️,t;pegar,🧴,b;jugar,🧸,s;correr,🏃,c;saltar,🤸,s;caminar,🚶,c;comer,🍽️,b;beber,🥤,b;dormir,😴,b;escuchar,👂,b;mirar,👀,b;hablar,🗣️,b;aplaudir,👏,t;ayudar,🤝,s;abrir,📂;cerrar,📁;sentarse,🪑,b;lavarse,🧼,t,lavarse las manos;cantar,🎤,s;bailar,💃,g;guardar,🎒;compartir,🫶,b;esperar,✋;levantar la mano,🙋‍♂️,s',
+emociones:'feliz,😀;triste,😢;enojado,😠,,enfadado;asustado,😨;cansado,🥱;aburrido,😑;tranquilo,😌;nervioso,😬;orgulloso,🥹;sorprendido,😮;me duele,🤕,,dolor',
+necesidades:'agua,💧;comida,🍎;baño,🚽;ayuda,🆘,t;descansar,🛋️;calor,🥵;frío,🥶;hambre,😋,,tener hambre;sed,🥛,,tener sed;sueño,😪,,tener sueño;silencio,🤫',
+colegio:'sala,🏫,,aula;patio,🌳;biblioteca,📚;recreo,⚽;pizarra,📋;mesa,🟫;silla,💺;mochila,🎒;puerta,🚪;timbre,🔔,t;comedor,🍱;tarea,📝;prueba,📄',
+materiales:'lápiz,✏️;goma,🧽,,goma de borrar;cuaderno,📓;libro,📕;tijeras,✂️;pegamento,🧴;regla,📏;colores,🖍️,,lápices de colores;hoja,📄;computador,💻;estuche,👝;sacapuntas,✏️',
+materias:'lenguaje,🔤;matemática,➗,,matemáticas;ciencias,🔬;historia,🏛️;inglés,🇬🇧;música,🎵,s;arte,🎨;educación física,🏅;tecnología,🖥️',
+preguntas:'qué,❓;quién,🧑;dónde,📍;cuándo,🕒;por qué,🤔;cómo,🤷;cuánto,🔢',
+social:'sí,✅;no,❌;hola,👋,t;chao,👋,t,adiós;gracias,🙏;por favor,🥺;perdón,😔;más,➕;menos,➖;terminé,🏁,,terminado;otra vez,🔁;no entiendo,😕,,no entender;espera,✋;me gusta,👍;no me gusta,👎;puedo,🙌,,poder',
+conectores:'y,➕,,-;con,🤝;para,🎯;porque,💡;pero,↔️;a,➡️,,-;al,➡️,,-;en,📍;de,🏷️,,-;el,👈,,-;la,👈,,-;un,1️⃣,,-;una,1️⃣,,-;mi,🙋;mis,🙋,,-;tu,👉;también,➕;o,🔀,,-;ahora,⏰;después,⏭️;antes,⏮️;aquí,📌;allá,👉;muy,⬆️;todo,🌐;nada,🚫;tengo,✋,,tener;estoy,🧍,,estar;voy,🚶,c,ir;es,🟰,,-;hay,👀,,-',
+docentes:'mira,👀,,mirar;escucha,👂,,escuchar;silencio,🤫;siéntate,🪑,,sentarse;levántate,🧍,,levantarse;fila,🚶‍♂️;turno,🔄;grupo,👥,,trabajo en grupo;pareja,👫;solo,🧍,,trabajo individual;guarda,🎒,,guardar;repite,🔁,,repetir;bien hecho,🌟,s,bien;inténtalo,💪,,intentar;termina,🏁,,terminar;escribe,✍️,b,escribir;lee,📖,b,leer;dibuja,✏️,b,dibujar;une,🔗,,unir;marca,✔️,,marcar;señala,👉,,señalar;ordena,🔢,,ordenar;ejemplo,💡;pregunta,❓;respuesta,💬;página,📄',
+colores:'rojo,🔴;azul,🔵;amarillo,🟡;verde,🟢;naranja,🟠;morado,🟣;negro,⚫;blanco,⚪;café,🟤,,marrón'};
+const norm=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+let C={cats:[],words:[],frases:[],fotos:{},pin:''};
+try{Object.assign(C,JSON.parse(ls('cfg')||'{}'))}catch(e){}
+const saveC=()=>{try{localStorage.setItem('mivoz_cfg',JSON.stringify(C));return true}catch(e){alert('No hay espacio para guardar. Usa fotos más pequeñas o haz una copia de seguridad y borra cosas.');return false}};
+let CT=[],P=[];
+function armar(){
+  CT=CATS.concat(C.cats.map(c=>[c.id,c.n,c.c,c.e]));P=[];
+  CATS.forEach(([id])=>(W[id]||'').split(';').filter(Boolean).forEach(s=>{const[t,e,m,q]=s.split(',');P.push({t,e,m:m||'',q:q||t,cat:id})}));
+  C.words.forEach(w=>{const x=P.find(p=>norm(p.t)===norm(w.t));
+    if(x){if(w.img)x.img=w.img}else P.push({t:w.t,e:w.e||'🖼️',m:'',q:w.t,cat:w.cat,img:w.img})});
+}
+const col=id=>(CT.find(c=>c[0]===id)||['','','#8d99ae'])[2];
+const FR0=['quiero participar','necesito ayuda','quiero ir al baño','tengo hambre','tengo sed','no entiendo','otra vez por favor','terminé mi tarea','quiero descansar','me duele','estoy feliz','estoy triste','quiero beber agua','quiero jugar con mi amigo','necesito un lápiz','quiero ir al patio','hola profe','gracias profe'];
+
+/* ---------- Pictogramas ARASAAC (con respaldo en emoji) ---------- */
+let cache={};try{cache=JSON.parse(ls('pic')||'{}')}catch(e){}
+async function pid(q){
+  if(cache[q])return cache[q];
+  try{
+    const r=await fetch('https://api.arasaac.org/v1/pictograms/es/bestsearch/'+encodeURIComponent(q));
+    const j=await r.json();const id=j&&j[0]&&j[0]._id;
+    if(id){cache[q]=id;ls('pic',JSON.stringify(cache))}
+    return id||null;
+  }catch(e){return null}
+}
+function ponPic(el,p){
+  if(p.img){const im=new Image();im.alt='';im.src=p.img;el.textContent='';el.append(im);return}
+  if(p.q==='-')return;
+  pid(p.q).then(id=>{
+    if(!id)return;
+    const im=new Image();im.alt='';
+    im.onload=()=>{el.textContent='';el.append(im)};
+    im.src=`https://static.arasaac.org/pictograms/${id}/${id}_500.png`;
+  });
+}
+
+/* ---------- Voz de mujer ---------- */
+let voz=null;
+function elegirVoz(){
+  if(!('speechSynthesis' in window))return;
+  const vs=speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang));
+  const L=v=>v.lang.replace('_','-');
+  const f=v=>/female|mujer|sabina|helena|laura|monica|mónica|paulina|catalina|elena|paloma|dalia|salome|lucia|lucía|sofia|camila|marisol|francisca|elvira|google español/i.test(v.name);
+  voz=vs.find(v=>L(v)==='es-CL'&&f(v))||vs.find(v=>/es-(419|MX|US|AR|CO|PE|UY)/.test(L(v))&&f(v))||vs.find(f)||vs.find(v=>L(v)==='es-CL')||vs[0]||null;
+}
+if('speechSynthesis' in window){elegirVoz();speechSynthesis.onvoiceschanged=elegirVoz}
+function decir(txt){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt);
+  u.lang=voz?voz.lang:'es-CL';if(voz)u.voice=voz;
+  u.rate=(perfil&&perfil.s.vel)||.85;u.pitch=1.15;
+  speechSynthesis.speak(u);
+}
+
+/* ---------- Perfiles ---------- */
+const AVS=['🦊','🐼','🦁','🐯','🐸','🐙','🦄','🐶','🐱','🐢','🦋','🚀','⚽','🌈','🤖','🐬'];
+const COLS=['#ff6b6b','#ffa94d','#ffd43b','#51cf66','#339af0','#845ef7','#f06595','#20c997'];
+let perfiles=[];try{perfiles=JSON.parse(ls('perfiles')||'[]')}catch(e){}
+let perfil=null,pi=-1,cat='quiero',frase=[],selAv=AVS[0],selCol=COLS[0];
+const guardaPerfiles=()=>ls('perfiles',JSON.stringify(perfiles));
+
+function pintaInicio(){
+  const L=$('logo');
+  if(!L.children.length)'Mi Voz'.split('').forEach((ch,i)=>{
+    const s=document.createElement('span');s.textContent=ch===' '?'\u00a0':ch;
+    s.style.cssText=`--i:${i};color:${['#ff6b6b','#ffa94d','#51cf66','#339af0','#845ef7'][i]}`;L.append(s);
+  });
+  const d=$('demo');d.innerHTML='';
+  ['feliz','agua','jugar','ayuda','leer','gracias'].forEach(t=>d.append(mkCard(P.find(p=>p.t===t),false)));
+  const box=$('perfiles');box.innerHTML='';
+  perfiles.forEach((p,i)=>{
+    const b=document.createElement('button');b.className='perfil'+(i===pi?' sel':'');b.style.setProperty('--c',p.c);
+    b.innerHTML=`<span class="av">${p.a}</span><b></b>`;b.querySelector('b').textContent=p.n;
+    b.onclick=()=>elegir(i);box.append(b);
+  });
+  const n=document.createElement('button');n.className='perfil nuevo';
+  n.innerHTML='<span class="av" style="background:none;font-size:2.6rem">➕</span>Nuevo perfil';
+  n.onclick=abrirCrear;box.append(n);
+}
+function opciones(cont,lista,esCol,sel,cb){
+  cont.innerHTML='';
+  lista.forEach(v=>{
+    const b=document.createElement('button');b.className='opt'+(esCol?' c':'');
+    if(esCol)b.style.background=v;else b.textContent=v;
+    b.setAttribute('aria-pressed',v===sel);
+    b.setAttribute('aria-label',esCol?'Color '+v:'Avatar '+v);
+    b.onclick=()=>{cb(v);opciones(cont,lista,esCol,v,cb)};cont.append(b);
+  });
+}
+function abrirCrear(){
+  $('nom').value='';selAv=AVS[0];selCol=COLS[0];
+  opciones($('avs'),AVS,false,selAv,v=>selAv=v);
+  opciones($('cols'),COLS,true,selCol,v=>selCol=v);
+  $('crear').showModal();
+}
+$('guardar').onclick=()=>{
+  const n=$('nom').value.trim();
+  if(!n){$('nom').focus();return}
+  perfiles.push({n,a:selAv,c:selCol,s:{tam:130,vel:.85,hc:false,quieto:false}});
+  pi=perfiles.length-1;perfil=perfiles[pi];ls('last',pi);guardaPerfiles();$('crear').close();pintaInicio();
+};
+function aplica(){
+  const s=perfil.s;
+  document.documentElement.style.setProperty('--tam',s.tam+'px');
+  document.body.classList.toggle('hc',!!s.hc);
+  document.body.classList.toggle('quieto',!!s.quieto);
+}
+function elegir(i){pi=i;perfil=perfiles[i];ls('last',i);pintaInicio()}
+function tomaPerfil(){
+  if(perfil)return;
+  const l=+ls('last');pi=(l>=0&&perfiles[l])?l:-1;
+  perfil=pi>=0?perfiles[pi]:{n:'Invitado',a:'🙂',c:'#339af0',s:{tam:130,vel:.85}};
+}
+let equipoOk=false;
+function ir(id){
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  if(id==='equipo'&&!equipoOk){
+    $('pinT').textContent=C.pin?'Ingresa la clave del equipo':'Crea una clave de 4 números';
+    $('pinI').value='';$('pin').showModal();return;
+  }
+  tomaPerfil();
+  ['inicio','app','mapa','equipo'].forEach(x=>$(x).hidden=x!==id);
+  window.scrollTo(0,0);aplica();
+  if(id==='inicio')pintaInicio();
+  if(id==='app'){
+    $('yoAv').textContent=perfil.a;$('yoAv').style.background=perfil.c;$('yoN').textContent=perfil.n;
+    pintaCats();pintaGrid();pintaFrase();
+    if(!ls('visto')){ls('visto','1');$('manual').showModal()}
+  }
+  if(id==='mapa')pintaMapa();
+  if(id==='equipo')pintaEquipo();
+}
+
+/* ---------- Tarjetas ---------- */
+function mkCard(p,agrega=true){
+  const b=document.createElement('button');
+  b.className='card'+(p.m?' m-'+p.m:'');b.style.setProperty('--c',col(p.cat));
+  b.innerHTML=`<span class="pic">${p.e}</span><span class="t">${p.t}</span>`;
+  ponPic(b.querySelector('.pic'),p);
+  b.onclick=()=>{
+    b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');
+    decir(p.t);if(agrega){frase.push(p);pintaFrase()}
+  };
+  return b;
+}
+function pintaCats(){
+  const n=$('cats');n.innerHTML='';
+  CATS.forEach(c=>{
+    const b=document.createElement('button');b.className='cat';b.style.setProperty('--c',c[2]);
+    b.textContent=c[3]+' '+c[1];b.setAttribute('aria-pressed',c[0]===cat);
+    b.onclick=()=>{cat=c[0];pintaCats();pintaGrid()};n.append(b);
+  });
+}
+function pintaGrid(){
+  const g=$('grid');g.innerHTML='';
+  if(cat==='quiero'){g.className='frases';FR0.concat(C.frases.map(f=>f.t)).forEach(t=>g.append(mkFrase(t)));return}
+  g.className='grid';
+  const l=P.filter(p=>p.cat===cat);
+  if(!l.length)g.textContent='Aún no hay palabras en esta categoría.';
+  l.forEach(p=>g.append(mkCard(p)));
+}
+
+/* ---------- Frase ---------- */
+function pintaFrase(){
+  const f=$('frase');f.innerHTML='';
+  if(!frase.length){f.innerHTML='<span class="vacio">Toca imágenes para armar tu frase</span>';return}
+  frase.forEach((p,i)=>{
+    const d=document.createElement('div');d.className='chip';d.dataset.i=i;d.tabIndex=0;d.setAttribute('role','button');
+    d.style.setProperty('--c',col(p.cat));
+    d.innerHTML=`<span class="pic">${p.e}</span><span class="t">${p.t}</span>`;
+    ponPic(d.querySelector('.pic'),p);
+    const x=document.createElement('button');x.className='x';x.textContent='✕';x.setAttribute('aria-label','Quitar '+p.t);
+    x.onpointerdown=e=>e.stopPropagation();
+    x.onclick=()=>{frase.splice(i,1);pintaFrase()};
+    d.append(x);
+    d.onpointerdown=e=>arrastrar(e,d);
+    d.onkeydown=e=>{if(e.key==='Enter')decir(frase[+d.dataset.i].t)};
+    f.append(d);
+  });
+}
+function arrastrar(e,el){
+  let i=+el.dataset.i,movio=false;
+  el.setPointerCapture(e.pointerId);el.classList.add('arr');
+  el.onpointermove=ev=>{
+    movio=true;
+    const o=document.elementFromPoint(ev.clientX,ev.clientY)?.closest('.chip');
+    if(o&&o!==el){
+      const j=+o.dataset.i;
+      const [m]=frase.splice(i,1);frase.splice(j,0,m);
+      const cs=[...$('frase').children];const [a]=cs.splice(i,1);cs.splice(j,0,a);
+      cs.forEach((c,k)=>{c.dataset.i=k;$('frase').append(c)});i=j;
+    }
+  };
+  el.onpointerup=el.onpointercancel=()=>{
+    el.classList.remove('arr');el.onpointermove=el.onpointerup=el.onpointercancel=null;
+    if(!movio){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');decir(frase[i].t);return}
+    pintaFrase();
+  };
+}
+$('play').onclick=()=>{if(frase.length)decir(frase.map(p=>p.t).join(' '))};
+$('borrar').onclick=()=>{frase.pop();pintaFrase()};
+$('limpiar').onclick=()=>{frase=[];pintaFrase()};
+
+/* ---------- Ajustes y manual ---------- */
+$('yo').onclick=()=>ir('inicio');
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>ir(b.dataset.go));
+$('ayuda').onclick=$('verManual').onclick=()=>$('manual').showModal();
+$('ajustes').onclick=()=>{
+  const s=perfil.s;
+  $('rTam').value=s.tam;$('rVel').value=s.vel;$('cHc').checked=!!s.hc;$('cQu').checked=!!s.quieto;
+  $('aju').showModal();
+};
+const cambia=()=>{
+  const s=perfil.s;s.tam=+$('rTam').value;s.vel=+$('rVel').value;s.hc=$('cHc').checked;s.quieto=$('cQu').checked;
+  guardaPerfiles();aplica();
+};
+['rTam','rVel','cHc','cQu'].forEach(id=>$(id).oninput=cambia);
+$('rVel').onchange=()=>decir('Hola, así suena mi voz');
+$('borraPerfil').onclick=()=>{
+  if(confirm('¿Borrar el perfil de '+perfil.n+'?')){
+    if(pi<0){$('aju').close();return}
+    perfiles.splice(pi,1);guardaPerfiles();$('aju').close();perfil=null;pi=-1;ls('last','-1');ir('inicio');
+  }
+};
+/* ---------- Quiero decir ---------- */
+function pals(txt){
+  const w=norm(txt).split(/\s+/),r=[],f=x=>P.find(p=>norm(p.t)===x);
+  for(let i=0;i<w.length;i++){
+    const d=i+1<w.length&&f(w[i]+' '+w[i+1]);
+    if(d){r.push(d);i++}else{const x=f(w[i]);if(x)r.push(x)}
+  }
+  return r;
+}
+function mkFrase(txt){
+  const b=document.createElement('button');b.className='fr';b.style.setProperty('--c','#ff5d8f');
+  const ps=document.createElement('span');ps.className='ps';
+  pals(txt).forEach(p=>{const s=document.createElement('span');s.className='pic';s.textContent=p.e;ponPic(s,p);ps.append(s)});
+  const t=document.createElement('span');t.className='t';t.textContent=txt[0].toUpperCase()+txt.slice(1);
+  b.append(ps,t);
+  b.onclick=()=>{frase=pals(txt);pintaFrase();decir(txt);b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop')};
+  return b;
+}
+
+/* ---------- Mapa escolar ---------- */
+const LUG=[['sala','Sala de clases','🏫','#ffd43b',10,10,120,80,'Quiero ir a la sala'],['biblioteca','Biblioteca','📚','#b197fc',140,10,120,80,'Quiero ir a la biblioteca'],['computacion','Computación','💻','#66d9e8',270,10,120,80,'Quiero ir a computación'],['patio','Patio','🌳','#8ce99a',10,100,380,90,'Quiero ir al patio'],['comedor','Comedor','🍱','#ffa94d',10,200,90,90,'Quiero ir al comedor'],['enfermeria','Enfermería','🩺','#ff8787',110,200,90,90,'Necesito ir a la enfermería'],['bano','Baño','🚽','#74c0fc',210,200,80,90,'Quiero ir al baño'],['gimnasio','Gimnasio','🏀','#ffc078',300,200,90,90,'Quiero ir al gimnasio']];
+function pintaMapa(){
+  $('mapaSvg').innerHTML=LUG.map(l=>`<g class="sala" tabindex="0" role="button" aria-label="${l[1]}" data-id="${l[0]}"><rect x="${l[4]}" y="${l[5]}" width="${l[6]}" height="${l[7]}" rx="14" fill="${l[3]}"/><text x="${l[4]+l[6]/2}" y="${l[5]+l[7]/2}" text-anchor="middle" font-size="30">${l[2]}</text><text x="${l[4]+l[6]/2}" y="${l[5]+l[7]/2+24}" text-anchor="middle" font-size="14">${l[1]}</text></g>`).join('');
+}
+$('mapaSvg').onclick=e=>{const g=e.target.closest('.sala');if(g)abrirLugar(g.dataset.id)};
+$('mapaSvg').onkeydown=e=>{if(e.key==='Enter'){const g=e.target.closest('.sala');if(g)abrirLugar(g.dataset.id)}};
+function abrirLugar(id){
+  const l=LUG.find(x=>x[0]===id),box=$('lugarBox');box.innerHTML='';
+  const im=new Image();im.className='foto';im.alt='Foto: '+l[1];
+  im.onerror=()=>{const d=document.createElement('div');d.className='foto';d.style.background=l[3];d.textContent=l[2];im.replaceWith(d)};
+  im.src=C.fotos[id]||'fotos/'+id+'.jpg';
+  const h=document.createElement('h2');h.textContent=l[1];
+  const a=document.createElement('button');a.className='btn main';a.textContent='🔊 Escuchar';a.onclick=()=>decir(l[8]);
+  const c=document.createElement('button');c.className='btn';c.textContent='Cerrar';c.onclick=()=>$('lugar').close();
+  const f=document.createElement('div');f.className='fila';f.append(a,c);
+  box.append(im,h,f);$('lugar').showModal();decir(l[8]);
+}
+
+/* ---------- Equipo educativo ---------- */
+$('pinOk').onclick=()=>{
+  const v=$('pinI').value.trim();
+  if(!/^\d{4}$/.test(v)){$('pinI').focus();return}
+  if(!C.pin){C.pin=v;saveC()}else if(v!==C.pin){$('pinI').value='';$('pinI').placeholder='Clave incorrecta';return}
+  equipoOk=true;$('pin').close();ir('equipo');
+};
+const reduce=(f,m)=>new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.7))};im.src=r.result};r.readAsDataURL(f)});
+function pintaEquipo(){
+  $('eqPc').replaceChildren(...CT.filter(c=>c[0]!=='quiero').map(c=>new Option(c[3]+' '+c[1],c[0])));
+  const M=$('eqMapa');M.replaceChildren();
+  LUG.forEach(l=>{
+    const r=document.createElement('div');r.className='item';
+    const s=document.createElement('span');s.textContent=l[2]+' '+l[1]+(C.fotos[l[0]]?' ✔':'');
+    const i=document.createElement('input');i.type='file';i.accept='image/*';i.setAttribute('aria-label','Foto de '+l[1]);
+    i.onchange=async()=>{if(i.files[0]){C.fotos[l[0]]=await reduce(i.files[0],800);if(saveC())pintaEquipo()}};
+    r.append(s,i);M.append(r);
+  });
+  const L=$('eqLista');L.replaceChildren();
+  const add=(txt,fn)=>{
+    const r=document.createElement('div');r.className='item';
+    const s=document.createElement('span');s.textContent=txt;
+    const b=document.createElement('button');b.className='btn';b.textContent='Borrar';
+    b.onclick=()=>{if(confirm('¿Borrar "'+txt+'"?')){fn();saveC();armar();pintaEquipo()}};
+    r.append(s,b);L.append(r);
+  };
+  C.cats.forEach((c,i)=>add('Categoría: '+c.e+' '+c.n,()=>{C.cats.splice(i,1);C.words=C.words.filter(w=>w.cat!==c.id)}));
+  C.words.forEach((w,i)=>add('Palabra: '+w.t+(w.img?' 📷':''),()=>C.words.splice(i,1)));
+  C.frases.forEach((f,i)=>add('Frase: '+f.t,()=>C.frases.splice(i,1)));
+  if(!L.children.length)L.textContent='Aún no hay nada creado.';
+}
+$('eqCb').onclick=()=>{
+  const n=$('eqCn').value.trim();if(!n)return;
+  C.cats.push({id:'c'+Date.now(),n,e:$('eqCe').value.trim()||'⭐',c:$('eqCc').value});
+  if(saveC()){$('eqCn').value='';armar();pintaEquipo()}
+};
+$('eqPb').onclick=async()=>{
+  const t=$('eqPt').value.trim();if(!t)return;
+  const w={t,cat:$('eqPc').value,e:$('eqPe').value.trim()||'🖼️'},f=$('eqPf').files[0];
+  if(f)w.img=await reduce(f,300);
+  C.words.push(w);
+  if(saveC()){$('eqPt').value='';$('eqPf').value='';armar();pintaEquipo()}else C.words.pop();
+};
+$('eqFb').onclick=()=>{
+  const t=$('eqFt').value.trim();if(!t)return;
+  C.frases.push({t});if(saveC()){$('eqFt').value='';pintaEquipo()}
+};
+$('eqExp').onclick=()=>{
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({C,perfiles})],{type:'application/json'}));
+  a.download='mi-voz-copia.json';a.click();
+};
+$('eqImp').onchange=async e=>{
+  try{
+    const d=JSON.parse(await e.target.files[0].text());
+    if(d.C)Object.assign(C,d.C);if(d.perfiles)perfiles=d.perfiles;
+    saveC();guardaPerfiles();armar();pintaEquipo();alert('Copia cargada');
+  }catch(x){alert('No se pudo leer el archivo')}
+};
+armar();tomaPerfil();pintaInicio();
+</script>
+</body>
+</html>
